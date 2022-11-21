@@ -167,7 +167,7 @@ const defaultImageRenderer = async (
       imgPath = imgPath.split('assets/')[1]
       // eslint-disable-next-line n/no-path-concat
       imgPath = `file://${__dirname}/public/assets/${imgPath}`
-      const img = await new fabric.Promise((resolve, reject) => {
+      const img = await new Promise((resolve, reject) => {
         Image.fromURL(imgPath,
           (img) => {
             img.scaleToHeight(height)

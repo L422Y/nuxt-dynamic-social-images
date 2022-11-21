@@ -77,6 +77,13 @@ useHead({
   ]
 })
 ```
+## Examples
+
+<img src="https://l422y.com/socialImage?path=/projects/personal/kointel-bsc-wallet-tracker">
+<img src="https://l422y.com/socialImage?path=/">
+<img src="https://l422y.com/socialImage?path=/blog">
+<img src="https://l422y.com/socialImage?path=/blog/reverse-clamp">
+
 ## Development
 
 - Run `npm run dev:prepare` to generate type stubs.
