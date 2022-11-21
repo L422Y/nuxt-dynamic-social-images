@@ -1,6 +1,6 @@
 {
   "name": "nuxt-dsi",
-  "version": "0.0.2",
+  "version": "0.0.21",
   "license": "MIT",
   "type": "module",
   "keywords": [
@@ -40,5 +40,15 @@
     "@types/fabric": "^4.5.12",
     "eslint": "^8.27.0",
     "nuxt": "^3.0.0"
-  }
+  },
+  "description": "Nuxt module to generate dynamic social media compatible images.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/L422Y/nuxt-dsi.git"
+  },
+  "author": "l422y@l422y.com",
+  "bugs": {
+    "url": "https://github.com/L422Y/nuxt-dsi/issues"
+  },
+  "homepage": "https://github.com/L422Y/nuxt-dsi#readme"
 }
