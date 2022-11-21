@@ -168,12 +168,12 @@ const defaultImageRenderer = async (
       // eslint-disable-next-line n/no-path-concat
       imgPath = `file://${__dirname}/public/assets/${imgPath}`
       const img = await new Promise((resolve, reject) => {
-        Image.fromURL(imgPath,
-          (img) => {
+        fabric.Image.fromURL(imgPath,
+          (img: fabric.Image) => {
             img.scaleToHeight(height)
             img.scaleToWidth(width)
             // @ts-ignore
-            img.filters.push(new fabric.fabric.Image.filters.Blur({ blur: 0.33 }))
+            img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
             img.applyFilters()
             resolve(img)
           }, {
