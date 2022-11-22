@@ -1,11 +1,11 @@
 import * as fs from 'fs'
-import { createWriteStream, existsSync, mkdir, readFileSync } from 'fs'
-import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
-import { fabric } from 'fabric'
+import {createWriteStream, existsSync, mkdir, readFileSync} from 'fs'
+import {appendHeader, defineEventHandler, getQuery, H3Event} from 'h3'
+import {fabric} from 'fabric'
 import defu from 'defu'
-import { createResolver } from '@nuxt/kit'
-import { ModuleOptions } from '../module'
-import { useRuntimeConfig } from '#imports'
+import {createResolver} from '@nuxt/kit'
+import {ModuleOptions} from '../module'
+import {useRuntimeConfig} from '#imports'
 
 const resolver = createResolver(import.meta.url)
 
@@ -17,10 +17,10 @@ let imageRenderer: any | Function | undefined
 const cachePath = resolver.resolve('.nuxt/', `${options.cacheDir}`)
 try {
   if (existsSync(cachePath)) {
-    fs.rmSync(cachePath, { force: true, recursive: true })
+    fs.rmSync(cachePath, {force: true, recursive: true})
   }
   // eslint-disable-next-line n/handle-callback-err
-  mkdir(cachePath, { recursive: true }, (err) => { /* empty */
+  mkdir(cachePath, {recursive: true}, (err) => { /* empty */
   })
 } catch (err) {
   /* empty */
@@ -39,7 +39,7 @@ class DSIGenerator {
     lockRotation: true
   }
 
-  static async getMetaData (data: Response): Promise<any> {
+  static async getMetaData(data: Response): Promise<any> {
     const html = await data.text()
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm)
     let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event: H3Event) => {
       const source = `http://${host}${path}`
       const width = 1200
       const height = 628
-      const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: '#000000' })
+      const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: '#000000'})
 
       const response = await fetch(source)
         .then(DSIGenerator.getMetaData)
@@ -123,9 +123,7 @@ export default defineEventHandler(async (event: H3Event) => {
 
 const defaultImageRenderer = async (
   fabric: any,
-  options: {
-    fixedText: string;
-  },
+  options: {},
   canvas: fabric.StaticCanvas,
   width: number,
   height: number,
@@ -162,7 +160,7 @@ const defaultImageRenderer = async (
               img.scaleToHeight(height)
               img.scaleToWidth(width)
               // @ts-ignore
-              img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
+              img.filters.push(new fabric.Image.filters.Blur({blur: 0.33}))
               img.applyFilters()
             }
             resolve(img)

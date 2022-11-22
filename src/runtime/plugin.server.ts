@@ -1,13 +1,12 @@
 // @ts-ignore
-import {defineNuxtPlugin, useRuntimeConfig, useState} from '#app'
-import {fabric} from "fabric"
-import {deregisterAllFonts} from "canvas"
-import {createResolver} from "@nuxt/kit"
-
+import { defineNuxtPlugin, useRuntimeConfig, useState } from '#app'
+import { fabric } from 'fabric'
+import { deregisterAllFonts } from 'canvas'
+import { createResolver } from '@nuxt/kit'
 
 export default defineNuxtPlugin(() => {
   const resolver = createResolver('~')
-  const {public: {dsi: options}} = useRuntimeConfig()
+  const { public: { dsi: options } } = useRuntimeConfig()
   if (process.env.fontsLoaded !== 'true') {
     if (options?.fonts && fabric.nodeCanvas) {
       deregisterAllFonts()

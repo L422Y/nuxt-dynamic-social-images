@@ -1,21 +1,19 @@
 import defu from "defu";
 
 export default async (
-  {
-    fabric,
-    options,
-    canvas,
-    width,
-    height,
-    textDefaults,
-    cleanTitle,
-    subTitle,
-    section,
-    title,
-    desc,
-    images
-  }) => {
-
+  fabric,
+  options,
+  canvas,
+  width,
+  height,
+  textDefaults,
+  cleanTitle,
+  subTitle,
+  section,
+  title,
+  desc,
+  images
+) => {
   textDefaults = {
     styles: {},
     fontFamily: 'arial',
@@ -28,7 +26,7 @@ export default async (
     lockRotation: true
   }
 
-  if (images.length > 0) {
+  if (images?.length > 0) {
     let imgPath = images[0]
     if (imgPath && imgPath.includes('assets')) {
       imgPath = imgPath.split('assets/')[1]
@@ -54,7 +52,7 @@ export default async (
 
   let textTop = 30
   const bioText = new fabric.Textbox(
-    options.fixedText || '', defu({
+    options?.fixedText || '', defu({
       top: textTop,
       fontFamily: 'connectionii',
       width: width - 100,
