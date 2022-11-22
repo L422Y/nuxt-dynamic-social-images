@@ -6,15 +6,17 @@ import defu from 'defu'
 import {createResolver} from '@nuxt/kit'
 import {ModuleOptions} from '../module'
 import {useRuntimeConfig} from '#imports'
+import {deregisterAllFonts} from "canvas";
+import path from "path";
 
-const resolver = createResolver(import.meta.url)
+const resolver = createResolver('~')
 
 const config = useRuntimeConfig()
 const options = config.public.dsi as ModuleOptions
 
 let imageRenderer: any | Function | undefined
 
-const cachePath = resolver.resolve('.nuxt/', `${options.cacheDir}`)
+const cachePath = resolver.resolve(`${options.cacheDir}`)
 try {
   if (existsSync(cachePath)) {
     fs.rmSync(cachePath, {force: true, recursive: true})
@@ -24,6 +26,23 @@ try {
   })
 } catch (err) {
   /* empty */
+}
+console.log('cachePath',cachePath)
+
+if (process.env.fontsLoaded !== 'true') {
+  if (options?.fonts && fabric.nodeCanvas) {
+    for (const font of options?.fonts) {
+      const fPath = path.resolve( font.path)
+      try {
+        console.log('font', fPath)
+        fabric.nodeCanvas.registerFont(fPath, font.options)
+      } catch (err) {
+        /* empty */
+        console.error(err)
+      }
+    }
+  }
+  process.env.fontsLoaded = 'true'
 }
 
 class DSIGenerator {
@@ -51,7 +70,7 @@ class DSIGenerator {
       values[m[2].toString()] = m[3]
     }
     matches = html.matchAll(/<img src="([^"]+)"/gm)
-    const images: Array<string> = [...matches].map(m => m[1])
+    const images: Array<string> = [...matches].map(m => m[1]).filter(v => v.toLowerCase().match(/(.jpg|.png|.gif)$/))
     return {
       title,
       images,
@@ -69,16 +88,17 @@ class DSIGenerator {
 
 export default defineEventHandler(async (event: H3Event) => {
   const query = getQuery(event)
+
   if (query?.path) {
     const path = query.path.toString()
+    const host = event.node.req.headers.host || '127.0.0.1:3000'
+    const url = `http://${host}`
+    const source = `${url}${path}`
+
     let pfn: string = path.replaceAll('/', '__')
     pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
-
-    const host = event.node.req.rawHeaders[event.node.req.rawHeaders.indexOf('host') + 1] || 'localhost'
     let jpg
-
     if (!existsSync(pfn) || process.dev) {
-      const source = `http://${host}${path}`
       const width = 1200
       const height = 628
       const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: '#000000'})
@@ -107,7 +127,8 @@ export default defineEventHandler(async (event: H3Event) => {
         section,
         title,
         desc,
-        images
+        images,
+        url
       )
       canvas.renderAll()
       // @ts-ignore
@@ -133,7 +154,8 @@ const defaultImageRenderer = async (
   section: boolean,
   title: string,
   desc: boolean,
-  images: string[]
+  images: string[],
+  url: string
 ) => {
   textDefaults = {
     styles: {},
@@ -149,12 +171,14 @@ const defaultImageRenderer = async (
 
   if (images?.length > 0) {
     let imgPath = images[0]
-    if (imgPath && imgPath.includes('assets')) {
-      imgPath = imgPath.split('assets/')[1]
-      // eslint-disable-next-line n/no-path-concat
-      imgPath = `file://${__dirname}/public/assets/${imgPath}`
+    if (imgPath) {
+      if (imgPath.startsWith('/_ipx')) {
+        imgPath = imgPath.split('/').splice(3).join('/')
+      }
+
+      imgPath = createResolver('public').resolve(imgPath)
       const img: fabric.Image = await new Promise((resolve, reject) => {
-        fabric.Image.fromURL(imgPath,
+        fabric.Image.fromURL(`file://${imgPath}`,
           (img: fabric.Image) => {
             if (img) {
               img.scaleToHeight(height)
@@ -283,7 +307,7 @@ const defaultImageRenderer = async (
 
 if (config.public.dsi?.customHandler) {
   const rendererPath = config.public.dsi.customHandler
-  const ch = await import(resolver.resolve('../..', rendererPath))
+  const ch = await import(createResolver('.').resolve(rendererPath))
   imageRenderer = ch.default
 } else {
   imageRenderer = defaultImageRenderer

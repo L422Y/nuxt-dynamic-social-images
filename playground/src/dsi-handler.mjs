@@ -1,4 +1,5 @@
 import defu from "defu";
+import {createResolver} from "@nuxt/kit";
 
 export default async (
   fabric,
@@ -28,12 +29,14 @@ export default async (
 
   if (images?.length > 0) {
     let imgPath = images[0]
-    if (imgPath && imgPath.includes('assets')) {
-      imgPath = imgPath.split('assets/')[1]
+    if (imgPath) {
+      if (imgPath.startsWith('/_ipx')) {
+        imgPath = imgPath.split('/').splice(3).join('/')
+      }
       // eslint-disable-next-line n/no-path-concat
-      imgPath = `file://${__dirname}/public/assets/${imgPath}`
+      imgPath = createResolver('public').resolve(imgPath)
       const img = await new Promise((resolve, reject) => {
-        fabric.Image.fromURL(imgPath,
+        fabric.Image.fromURL(`file://${imgPath}`,
           (img) => {
             img.scaleToHeight(height)
             img.scaleToWidth(width)
