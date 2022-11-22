@@ -3,7 +3,6 @@ import path from 'path'
 import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
 import { fabric } from 'fabric'
 import defu from 'defu'
-import { AsyncFunction } from 'type-fest/source/async-return-type'
 import { ModuleOptions } from '../module'
 import { useRuntimeConfig } from '#imports'
 
@@ -13,7 +12,7 @@ const config = useRuntimeConfig()
 
 const { Image, Rect, StaticCanvas, Textbox } = fabric
 
-let imageRenderer: AsyncFunction | Function | undefined
+let imageRenderer: any | Function | undefined
 
 class DSIGenerator {
   private static textDefaults = {
@@ -161,7 +160,7 @@ const defaultImageRenderer = async (
     lockRotation: true
   }
 
-  if (images.length > 0) {
+  if (images?.length > 0) {
     let imgPath = images[0]
     if (imgPath && imgPath.includes('assets')) {
       imgPath = imgPath.split('assets/')[1]

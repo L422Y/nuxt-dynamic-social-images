@@ -1,8 +1,8 @@
-import {fileURLToPath} from 'url'
-import {addServerHandler, createResolver, defineNuxtModule} from '@nuxt/kit'
-import {NitroEventHandler} from 'nitropack'
+import { fileURLToPath } from 'url'
+import { existsSync, mkdirSync, rmdirSync } from 'fs'
+import { addServerHandler, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { NitroEventHandler } from 'nitropack'
 import defu from 'defu'
-import {existsSync, mkdirSync, rmdirSync} from 'fs'
 
 export interface ModuleOptions {
   /**
@@ -39,7 +39,7 @@ export default defineNuxtModule<ModuleOptions>({
     fixedText: 'Fixed Header Copy Goes here'
   },
   setup: function (options, nuxt) {
-    const {resolve} = createResolver(import.meta.url)
+    const { resolve } = createResolver(import.meta.url)
     const __dirname: string = resolve('')
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     const handlerPath = resolve(runtimeDir, 'handler.get.mjs')
@@ -51,7 +51,6 @@ export default defineNuxtModule<ModuleOptions>({
       rmdirSync(cachePath)
     }
     mkdirSync(cachePath)
-
 
     const handler: NitroEventHandler = {
       route: options.path,
