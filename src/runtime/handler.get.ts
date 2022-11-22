@@ -20,7 +20,8 @@ try {
     fs.rmSync(cachePath, { force: true, recursive: true })
   }
   // eslint-disable-next-line n/handle-callback-err
-  mkdir(cachePath, { recursive: true }, (err) => { /* empty */ })
+  mkdir(cachePath, { recursive: true }, (err) => { /* empty */
+  })
 } catch (err) {
   /* empty */
 }
@@ -38,7 +39,7 @@ class DSIGenerator {
     lockRotation: true
   }
 
-  static async getMetaData (data: Response) {
+  static async getMetaData (data: Response): Promise<any> {
     const html = await data.text()
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm)
     let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
@@ -73,7 +74,6 @@ export default defineEventHandler(async (event: H3Event) => {
     let pfn: string = path.replaceAll('/', '__')
     pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
 
-
     const host = event.node.req.rawHeaders[event.node.req.rawHeaders.indexOf('host') + 1] || 'localhost'
     let jpg
 
@@ -83,6 +83,9 @@ export default defineEventHandler(async (event: H3Event) => {
       const height = 628
       const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: '#000000' })
 
+      const response = await fetch(source)
+        .then(DSIGenerator.getMetaData)
+        .catch(err => console.error(err))
       const {
         cleanTitle,
         subTitle,
@@ -90,12 +93,9 @@ export default defineEventHandler(async (event: H3Event) => {
         title,
         desc,
         images
-      } = await fetch(source)
-        .then(DSIGenerator.getMetaData)
-        .catch(err => console.error(err))
-
+      } = response
       const textDefaults = DSIGenerator.textDefaults
-      await imageRenderer({
+      await imageRenderer(
         fabric,
         options,
         canvas,
@@ -108,7 +108,7 @@ export default defineEventHandler(async (event: H3Event) => {
         title,
         desc,
         images
-      })
+      )
       canvas.renderAll()
       // @ts-ignore
       jpg = await canvas.createJPEGStream()
@@ -122,20 +122,21 @@ export default defineEventHandler(async (event: H3Event) => {
 })
 
 const defaultImageRenderer = async (
-  {
-    fabric,
-    options,
-    canvas,
-    width,
-    height,
-    textDefaults,
-    cleanTitle,
-    subTitle,
-    section,
-    title,
-    desc,
-    images
-  }) => {
+  fabric: any,
+  options: {
+    fixedText: string;
+  },
+  canvas: fabric.StaticCanvas,
+  width: number,
+  height: number,
+  textDefaults: object,
+  cleanTitle: boolean,
+  subTitle: boolean,
+  section: boolean,
+  title: string,
+  desc: boolean,
+  images: string[]
+) => {
   textDefaults = {
     styles: {},
     fontFamily: 'arial',
@@ -154,7 +155,7 @@ const defaultImageRenderer = async (
       imgPath = imgPath.split('assets/')[1]
       // eslint-disable-next-line n/no-path-concat
       imgPath = `file://${__dirname}/public/assets/${imgPath}`
-      const img = await new Promise((resolve, reject) => {
+      const img: fabric.Image = await new Promise((resolve, reject) => {
         fabric.Image.fromURL(imgPath,
           (img: fabric.Image) => {
             if (img) {

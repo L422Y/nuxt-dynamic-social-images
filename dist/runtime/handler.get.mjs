@@ -64,6 +64,7 @@ export default defineEventHandler(async (event) => {
       const width = 1200;
       const height = 628;
       const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: "#000000" });
+      const response = await fetch(source).then(DSIGenerator.getMetaData).catch((err) => console.error(err));
       const {
         cleanTitle,
         subTitle,
@@ -71,9 +72,9 @@ export default defineEventHandler(async (event) => {
         title,
         desc,
         images
-      } = await fetch(source).then(DSIGenerator.getMetaData).catch((err) => console.error(err));
+      } = response;
       const textDefaults = DSIGenerator.textDefaults;
-      await imageRenderer({
+      await imageRenderer(
         fabric,
         options,
         canvas,
@@ -86,7 +87,7 @@ export default defineEventHandler(async (event) => {
         title,
         desc,
         images
-      });
+      );
       canvas.renderAll();
       jpg = await canvas.createJPEGStream();
       await jpg.pipe(createWriteStream(pfn));
@@ -97,20 +98,7 @@ export default defineEventHandler(async (event) => {
     return jpg;
   }
 });
-const defaultImageRenderer = async ({
-  fabric: fabric2,
-  options: options2,
-  canvas,
-  width,
-  height,
-  textDefaults,
-  cleanTitle,
-  subTitle,
-  section,
-  title,
-  desc,
-  images
-}) => {
+const defaultImageRenderer = async (fabric2, options2, canvas, width, height, textDefaults, cleanTitle, subTitle, section, title, desc, images) => {
   textDefaults = {
     styles: {},
     fontFamily: "arial",
