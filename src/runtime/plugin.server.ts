@@ -1,5 +1,5 @@
 // @ts-ignore
-import {defineNuxtPlugin, useState} from '#app'
+import {defineNuxtPlugin, useRuntimeConfig, useState} from '#app'
 import {fabric} from "fabric"
 import {deregisterAllFonts} from "canvas"
 import {createResolver} from "@nuxt/kit"
