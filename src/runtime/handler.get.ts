@@ -89,7 +89,7 @@ class DSIGenerator {
       let jpg
 
       if (!existsSync(pfn) || process.dev) {
-        const source = `http://${event.req.headers.host}${path}`
+        const source = `http://${event.node.req.headers.host}${path}`
         const width = 1200
         const height = 628
         const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: '#000000'})
@@ -101,7 +101,10 @@ class DSIGenerator {
           title,
           desc,
           images
-        } = await fetch(source).then(DSIGenerator.getMetaData)
+        } = await fetch(source)
+          .then(DSIGenerator.getMetaData)
+          .catch(err => console.error(err))
+
         const textDefaults = DSIGenerator.textDefaults
         await imageRenderer({
           fabric,
