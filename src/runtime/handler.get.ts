@@ -1,18 +1,29 @@
-import { createWriteStream, existsSync, readFileSync } from 'fs'
-import path from 'path'
-import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
-import { fabric } from 'fabric'
+import * as fs from 'fs'
+import {createWriteStream, existsSync, mkdir, readFileSync} from 'fs'
+import {appendHeader, defineEventHandler, getQuery, H3Event} from 'h3'
+import {fabric} from 'fabric'
 import defu from 'defu'
-import { ModuleOptions } from '../module'
-import { useRuntimeConfig } from '#imports'
+import {createResolver} from '@nuxt/kit'
+import {ModuleOptions} from '../module'
+import {useRuntimeConfig} from '#imports'
 
-const { resolve } = path
+const resolver = createResolver(import.meta.url)
 
 const config = useRuntimeConfig()
-
-const { Image, Rect, StaticCanvas, Textbox } = fabric
+const options = config.public.dsi as ModuleOptions
 
 let imageRenderer: any | Function | undefined
+
+const cachePath = resolver.resolve('.nuxt/', `${options.cacheDir}`)
+try {
+  if (existsSync(cachePath)) {
+    fs.rmSync(cachePath, {force: true, recursive: true})
+  }
+  mkdir(cachePath, {recursive: true}, (err) => {
+  })
+} catch (err) {
+  /* empty */
+}
 
 class DSIGenerator {
   private static textDefaults = {
@@ -29,19 +40,19 @@ class DSIGenerator {
 
   private static _instance: any
 
-  constructor () {
+  constructor() {
     try { /* empty */
     } catch (err) {
       // already loaded
     }
   }
 
-  public static getInstance () {
+  public static getInstance() {
     this._instance = this._instance ? this._instance : new DSIGenerator()
     return this._instance
   }
 
-  private static async getMetaData (data: Response) {
+  private static async getMetaData(data: Response) {
     const html = await data.text()
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm)
     let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
@@ -68,30 +79,20 @@ class DSIGenerator {
     }
   }
 
-  async eventHandler (event: H3Event) {
-    const options = config.public.dsi as ModuleOptions
+  async eventHandler(event: H3Event) {
     const query = getQuery(event)
-    const __dirname = resolve('')
-
     if (query?.path) {
       const path = query.path.toString()
-      const cachePath = `${options.cacheDir}`
-
       let pfn: string = path.replaceAll('/', '__')
-      pfn = resolve(cachePath, `${pfn}.jpg`)
+      pfn = resolver.resolve(cachePath, `${pfn}.jpg`);
+
       let jpg
+
       if (!existsSync(pfn) || process.dev) {
         const source = `http://${event.req.headers.host}${path}`
         const width = 1200
         const height = 628
-
-        if (config.public.dsi?.fonts && fabric.nodeCanvas) {
-          for (const font of config.public.dsi?.fonts) {
-            fabric.nodeCanvas.registerFont(`${__dirname}/${font.path}`, font.options)
-          }
-        }
-
-        const canvas = new StaticCanvas(null, { width, height, backgroundColor: '#000000' })
+        const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: '#000000'})
 
         const {
           cleanTitle,
@@ -166,15 +167,15 @@ const defaultImageRenderer = async (
       imgPath = imgPath.split('assets/')[1]
       // eslint-disable-next-line n/no-path-concat
       imgPath = `file://${__dirname}/public/assets/${imgPath}`
-      const img = await new Promise((resolve, reject) => {
+      const img = await new Promise((resolvePromise, reject) => {
         fabric.Image.fromURL(imgPath,
           (img: fabric.Image) => {
             img.scaleToHeight(height)
             img.scaleToWidth(width)
             // @ts-ignore
-            img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
+            img.filters.push(new fabric.Image.filters.Blur({blur: 0.33}))
             img.applyFilters()
-            resolve(img)
+            resolvePromise(img)
           }, {
             opacity: 0.60
           })
@@ -292,7 +293,7 @@ const defaultImageRenderer = async (
 
 if (config.public.dsi?.customHandler) {
   const rendererPath = config.public.dsi.customHandler
-  const ch = await import(resolve(rendererPath))
+  const ch = await import(resolver.resolve('../..', rendererPath))
   imageRenderer = ch.default
 } else {
   imageRenderer = defaultImageRenderer
