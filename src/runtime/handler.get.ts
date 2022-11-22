@@ -73,7 +73,8 @@ export default defineEventHandler(async (event: H3Event) => {
     let pfn: string = path.replaceAll('/', '__')
     pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
 
-    const host = event.node.req.headers?.host
+
+    const host = event.node.req.rawHeaders[event.node.req.rawHeaders.indexOf('host') + 1] || 'localhost'
     let jpg
 
     if (!existsSync(pfn) || process.dev) {
