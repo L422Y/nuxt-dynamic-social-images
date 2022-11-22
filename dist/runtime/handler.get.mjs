@@ -18,16 +18,7 @@ try {
   });
 } catch (err) {
 }
-const _DSIGenerator = class {
-  constructor() {
-    try {
-    } catch (err) {
-    }
-  }
-  static getInstance() {
-    this._instance = this._instance ? this._instance : new _DSIGenerator();
-    return this._instance;
-  }
+class DSIGenerator {
   static async getMetaData(data) {
     const html = await data.text();
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm);
@@ -48,53 +39,7 @@ const _DSIGenerator = class {
       desc: values["og:description"] || values.description
     };
   }
-  async eventHandler(event) {
-    const query = getQuery(event);
-    if (query?.path) {
-      const path = query.path.toString();
-      let pfn = path.replaceAll("/", "__");
-      pfn = resolver.resolve(cachePath, `${pfn}.jpg`);
-      let jpg;
-      if (!existsSync(pfn) || process.dev) {
-        const source = `http://${event.node.req.headers.host}${path}`;
-        const width = 1200;
-        const height = 628;
-        const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: "#000000" });
-        const {
-          cleanTitle,
-          subTitle,
-          section,
-          title,
-          desc,
-          images
-        } = await fetch(source).then(_DSIGenerator.getMetaData).catch((err) => console.error(err));
-        const textDefaults = _DSIGenerator.textDefaults;
-        await imageRenderer({
-          fabric,
-          options,
-          canvas,
-          width,
-          height,
-          textDefaults,
-          cleanTitle,
-          subTitle,
-          section,
-          title,
-          desc,
-          images
-        });
-        canvas.renderAll();
-        jpg = await canvas.createJPEGStream();
-        await jpg.pipe(createWriteStream(pfn));
-      } else {
-        jpg = readFileSync(pfn);
-      }
-      appendHeader(event, "Content-Type", "image/jpeg");
-      return jpg;
-    }
-  }
-};
-let DSIGenerator = _DSIGenerator;
+}
 DSIGenerator.textDefaults = {
   styles: {},
   fontFamily: "Arial",
@@ -106,8 +51,52 @@ DSIGenerator.textDefaults = {
   textAlign: "left",
   lockRotation: true
 };
-const socialImage = DSIGenerator.getInstance();
-export default defineEventHandler(socialImage.eventHandler);
+export default defineEventHandler(async (event) => {
+  const query = getQuery(event);
+  if (query?.path) {
+    const path = query.path.toString();
+    let pfn = path.replaceAll("/", "__");
+    pfn = resolver.resolve(cachePath, `${pfn}.jpg`);
+    const host = event.node.req.headers?.host;
+    let jpg;
+    if (!existsSync(pfn) || process.dev) {
+      const source = `http://${host}${path}`;
+      const width = 1200;
+      const height = 628;
+      const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: "#000000" });
+      const {
+        cleanTitle,
+        subTitle,
+        section,
+        title,
+        desc,
+        images
+      } = await fetch(source).then(DSIGenerator.getMetaData).catch((err) => console.error(err));
+      const textDefaults = DSIGenerator.textDefaults;
+      await imageRenderer({
+        fabric,
+        options,
+        canvas,
+        width,
+        height,
+        textDefaults,
+        cleanTitle,
+        subTitle,
+        section,
+        title,
+        desc,
+        images
+      });
+      canvas.renderAll();
+      jpg = await canvas.createJPEGStream();
+      await jpg.pipe(createWriteStream(pfn));
+    } else {
+      jpg = readFileSync(pfn);
+    }
+    appendHeader(event, "Content-Type", "image/jpeg");
+    return jpg;
+  }
+});
 const defaultImageRenderer = async ({
   fabric: fabric2,
   options: options2,
@@ -138,23 +127,27 @@ const defaultImageRenderer = async ({
     if (imgPath && imgPath.includes("assets")) {
       imgPath = imgPath.split("assets/")[1];
       imgPath = `file://${__dirname}/public/assets/${imgPath}`;
-      const img = await new Promise((resolvePromise, reject) => {
+      const img = await new Promise((resolve, reject) => {
         fabric2.Image.fromURL(
           imgPath,
           (img2) => {
-            img2.scaleToHeight(height);
-            img2.scaleToWidth(width);
-            img2.filters.push(new fabric2.Image.filters.Blur({ blur: 0.33 }));
-            img2.applyFilters();
-            resolvePromise(img2);
+            if (img2) {
+              img2.scaleToHeight(height);
+              img2.scaleToWidth(width);
+              img2.filters.push(new fabric2.Image.filters.Blur({ blur: 0.33 }));
+              img2.applyFilters();
+            }
+            resolve(img2);
           },
           {
             opacity: 0.6
           }
         );
       });
-      canvas.add(img);
-      canvas.centerObject(img);
+      if (img) {
+        canvas.add(img);
+        canvas.centerObject(img);
+      }
     }
   }
   let textTop = 30;

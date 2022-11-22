@@ -1,11 +1,11 @@
 import * as fs from 'fs'
-import {createWriteStream, existsSync, mkdir, readFileSync} from 'fs'
-import {appendHeader, defineEventHandler, getQuery, H3Event} from 'h3'
-import {fabric} from 'fabric'
+import { createWriteStream, existsSync, mkdir, readFileSync } from 'fs'
+import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
+import { fabric } from 'fabric'
 import defu from 'defu'
-import {createResolver} from '@nuxt/kit'
-import {ModuleOptions} from '../module'
-import {useRuntimeConfig} from '#imports'
+import { createResolver } from '@nuxt/kit'
+import { ModuleOptions } from '../module'
+import { useRuntimeConfig } from '#imports'
 
 const resolver = createResolver(import.meta.url)
 
@@ -17,16 +17,16 @@ let imageRenderer: any | Function | undefined
 const cachePath = resolver.resolve('.nuxt/', `${options.cacheDir}`)
 try {
   if (existsSync(cachePath)) {
-    fs.rmSync(cachePath, {force: true, recursive: true})
+    fs.rmSync(cachePath, { force: true, recursive: true })
   }
-  mkdir(cachePath, {recursive: true}, (err) => {
-  })
+  // eslint-disable-next-line n/handle-callback-err
+  mkdir(cachePath, { recursive: true }, (err) => { /* empty */ })
 } catch (err) {
   /* empty */
 }
 
 class DSIGenerator {
-  private static textDefaults = {
+  static textDefaults = {
     styles: {},
     fontFamily: 'Arial',
     fill: '#ffffff',
@@ -38,21 +38,7 @@ class DSIGenerator {
     lockRotation: true
   }
 
-  private static _instance: any
-
-  constructor() {
-    try { /* empty */
-    } catch (err) {
-      // already loaded
-    }
-  }
-
-  public static getInstance() {
-    this._instance = this._instance ? this._instance : new DSIGenerator()
-    return this._instance
-  }
-
-  private static async getMetaData(data: Response) {
+  static async getMetaData (data: Response) {
     const html = await data.text()
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm)
     let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
@@ -78,64 +64,61 @@ class DSIGenerator {
       desc: values['og:description'] || values.description
     }
   }
-
-  async eventHandler(event: H3Event) {
-    const query = getQuery(event)
-    if (query?.path) {
-      const path = query.path.toString()
-      let pfn: string = path.replaceAll('/', '__')
-      pfn = resolver.resolve(cachePath, `${pfn}.jpg`);
-
-      let jpg
-
-      if (!existsSync(pfn) || process.dev) {
-        const source = `http://${event.node.req.headers.host}${path}`
-        const width = 1200
-        const height = 628
-        const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: '#000000'})
-
-        const {
-          cleanTitle,
-          subTitle,
-          section,
-          title,
-          desc,
-          images
-        } = await fetch(source)
-          .then(DSIGenerator.getMetaData)
-          .catch(err => console.error(err))
-
-        const textDefaults = DSIGenerator.textDefaults
-        await imageRenderer({
-          fabric,
-          options,
-          canvas,
-          width,
-          height,
-          textDefaults,
-          cleanTitle,
-          subTitle,
-          section,
-          title,
-          desc,
-          images
-        })
-        canvas.renderAll()
-        // @ts-ignore
-        jpg = await canvas.createJPEGStream()
-        await jpg.pipe(createWriteStream(pfn))
-      } else {
-        jpg = readFileSync(pfn)
-      }
-      appendHeader(event, 'Content-Type', 'image/jpeg')
-      return jpg
-    }
-  }
 }
 
-const socialImage: DSIGenerator = DSIGenerator.getInstance()
+export default defineEventHandler(async (event: H3Event) => {
+  const query = getQuery(event)
+  if (query?.path) {
+    const path = query.path.toString()
+    let pfn: string = path.replaceAll('/', '__')
+    pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
 
-export default defineEventHandler(socialImage.eventHandler)
+    const host = event.node.req.headers?.host
+    let jpg
+
+    if (!existsSync(pfn) || process.dev) {
+      const source = `http://${host}${path}`
+      const width = 1200
+      const height = 628
+      const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: '#000000' })
+
+      const {
+        cleanTitle,
+        subTitle,
+        section,
+        title,
+        desc,
+        images
+      } = await fetch(source)
+        .then(DSIGenerator.getMetaData)
+        .catch(err => console.error(err))
+
+      const textDefaults = DSIGenerator.textDefaults
+      await imageRenderer({
+        fabric,
+        options,
+        canvas,
+        width,
+        height,
+        textDefaults,
+        cleanTitle,
+        subTitle,
+        section,
+        title,
+        desc,
+        images
+      })
+      canvas.renderAll()
+      // @ts-ignore
+      jpg = await canvas.createJPEGStream()
+      await jpg.pipe(createWriteStream(pfn))
+    } else {
+      jpg = readFileSync(pfn)
+    }
+    appendHeader(event, 'Content-Type', 'image/jpeg')
+    return jpg
+  }
+})
 
 const defaultImageRenderer = async (
   {
@@ -170,21 +153,25 @@ const defaultImageRenderer = async (
       imgPath = imgPath.split('assets/')[1]
       // eslint-disable-next-line n/no-path-concat
       imgPath = `file://${__dirname}/public/assets/${imgPath}`
-      const img = await new Promise((resolvePromise, reject) => {
+      const img = await new Promise((resolve, reject) => {
         fabric.Image.fromURL(imgPath,
           (img: fabric.Image) => {
-            img.scaleToHeight(height)
-            img.scaleToWidth(width)
-            // @ts-ignore
-            img.filters.push(new fabric.Image.filters.Blur({blur: 0.33}))
-            img.applyFilters()
-            resolvePromise(img)
+            if (img) {
+              img.scaleToHeight(height)
+              img.scaleToWidth(width)
+              // @ts-ignore
+              img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
+              img.applyFilters()
+            }
+            resolve(img)
           }, {
             opacity: 0.60
           })
       })
-      canvas.add(img)
-      canvas.centerObject(img)
+      if (img) {
+        canvas.add(img)
+        canvas.centerObject(img)
+      }
     }
   }
 
