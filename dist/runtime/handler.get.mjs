@@ -19,13 +19,11 @@ try {
   });
 } catch (err) {
 }
-console.log("cachePath", cachePath);
 if (process.env.fontsLoaded !== "true") {
   if (options?.fonts && fabric.nodeCanvas) {
     for (const font of options?.fonts) {
       const fPath = path.resolve(font.path);
       try {
-        console.log("font", fPath);
         fabric.nodeCanvas.registerFont(fPath, font.options);
       } catch (err) {
         console.error(err);
