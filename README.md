@@ -13,6 +13,10 @@ This module works well with [nuxt-head-ex](https://www.npmjs.com/package/nuxt-he
 ```shell
 yarn add nuxt-dsi
 ```
+Add the module to your `nuxt.config.ts`:
+```
+modules: ['nuxt-dsi'],
+```
 
 # Configuration
 
