@@ -1,4 +1,5 @@
 # Nuxt DSI (Dynamic Social Images)
+![npm](https://img.shields.io/npm/dt/nuxt-dsi)
 
 Sets up an endpoint (default: `/socialImage`) that takes a `path` GET parameter and will generate a dynamic social share image based on specified meta tags, and other configuration.
 
