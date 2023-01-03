@@ -84,10 +84,10 @@ useHead({
 ```
 ## Examples
 
-<img src="https://l422y.com/socialImage?path=/projects/personal/kointel-bsc-wallet-tracker">
-<img src="https://l422y.com/socialImage?path=/">
-<img src="https://l422y.com/socialImage?path=/blog">
-<img src="https://l422y.com/socialImage?path=/blog/reverse-clamp">
+<img src="https://l422y.com/socialImage.jpg?path=/projects/personal/kointel-bsc-wallet-tracker">
+<img src="https://l422y.com/socialImage.jpg?path=/">
+<img src="https://l422y.com/socialImage.jpg?path=/blog">
+<img src="https://l422y.com/socialImage.jpg?path=/blog/reverse-clamp">
 
 ## Development
 
