@@ -5,7 +5,6 @@ import { fabric } from "fabric";
 import defu from "defu";
 import { createResolver } from "@nuxt/kit";
 import { useRuntimeConfig } from "#imports";
-import path from "path";
 const resolver = createResolver("~");
 const config = useRuntimeConfig();
 const options = config.public.dsi;
@@ -18,19 +17,6 @@ try {
   mkdir(cachePath, { recursive: true }, (err) => {
   });
 } catch (err) {
-}
-if (process.env.fontsLoaded !== "true") {
-  if (options?.fonts && fabric.nodeCanvas) {
-    for (const font of options?.fonts) {
-      const fPath = path.resolve(font.path);
-      try {
-        fabric.nodeCanvas.registerFont(fPath, font.options);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }
-  process.env.fontsLoaded = "true";
 }
 class DSIGenerator {
   static async getMetaData(data) {
@@ -68,11 +54,11 @@ DSIGenerator.textDefaults = {
 export default defineEventHandler(async (event) => {
   const query = getQuery(event);
   if (query?.path) {
-    const path2 = query.path.toString();
+    const path = query.path.toString();
     const host = event.node.req.headers.host || "127.0.0.1:3000";
     const url = `http://${host}`;
-    const source = `${url}${path2}`;
-    let pfn = path2.replaceAll("/", "__");
+    const source = `${url}${path}`;
+    let pfn = path.replaceAll("/", "__");
     pfn = resolver.resolve(cachePath, `${pfn}.jpg`);
     let jpg;
     if (!existsSync(pfn) || process.dev) {
