@@ -1,9 +1,7 @@
-import {fileURLToPath} from 'url'
-import {addPlugin, addServerHandler, createResolver, defineNuxtModule} from '@nuxt/kit'
-import {NitroEventHandler} from 'nitropack'
+import { fileURLToPath } from 'url'
+import { addPlugin, addServerHandler, createResolver, defineNuxtModule } from '@nuxt/kit'
+import { NitroEventHandler } from 'nitropack'
 import defu from 'defu'
-import {fabric} from "fabric";
-import {deregisterAllFonts} from "canvas";
 
 export interface ModuleOptions {
   /**
