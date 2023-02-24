@@ -20,6 +20,7 @@ const module = defineNuxtModule({
     nuxt.options.runtimeConfig.public.dsi = defu(nuxt.options.runtimeConfig.public.dsi, options);
     const handler = {
       route: options.path,
+      method: "get",
       handler: handlerPath
     };
     addPlugin({
