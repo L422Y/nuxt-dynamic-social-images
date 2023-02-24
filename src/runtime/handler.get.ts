@@ -1,13 +1,13 @@
-import * as fs from 'fs'
-import { createWriteStream, existsSync, mkdir, readFileSync } from 'fs'
-import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
-import { fabric } from 'fabric'
-import defu from 'defu'
-import { createResolver } from '@nuxt/kit'
-import { ModuleOptions } from '../module'
-import { useRuntimeConfig } from '#imports'
+import * as fs from "fs"
+import { createWriteStream, existsSync, mkdir, readFileSync } from "fs"
+import { appendHeader, defineEventHandler, getQuery, H3Event } from "h3"
+import { fabric } from "fabric"
+import defu from "defu"
+import { createResolver } from "@nuxt/kit"
+import { ModuleOptions } from "../module"
+import { useRuntimeConfig } from "#imports"
 
-const resolver = createResolver('~')
+const resolver = createResolver("~")
 
 const config = useRuntimeConfig()
 const options = config.public.dsi as ModuleOptions
@@ -17,10 +17,10 @@ let imageRenderer: any | Function | undefined
 const cachePath = resolver.resolve(`${options.cacheDir}`)
 try {
   if (existsSync(cachePath)) {
-    fs.rmSync(cachePath, { force: true, recursive: true })
+    fs.rmSync(cachePath, {force: true, recursive: true})
   }
   // eslint-disable-next-line n/handle-callback-err
-  mkdir(cachePath, { recursive: true }, (err) => { /* empty */
+  mkdir(cachePath, {recursive: true}, (err) => { /* empty */
   })
 } catch (err) {
   /* empty */
@@ -29,17 +29,17 @@ try {
 class DSIGenerator {
   static textDefaults = {
     styles: {},
-    fontFamily: 'Arial',
-    fill: '#ffffff',
+    fontFamily: "Arial",
+    fill: "#ffffff",
     fontSize: 12,
     left: 50,
     top: 50,
     lineHeight: 0.8,
-    textAlign: 'left',
+    textAlign: "left",
     lockRotation: true
   }
 
-  static async getMetaData (data: Response): Promise<any> {
+  static async getMetaData(data: Response): Promise<any> {
     const html = await data.text()
     let matches = html.matchAll(/<meta[^>]+(name|property)="([^")]*)[^>]+content="([^"]*).*?>/gm)
     let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
@@ -56,13 +56,13 @@ class DSIGenerator {
       title,
       images,
       // @ts-ignore
-      cleanTitle: values['clean:title'] || values.title || title,
+      cleanTitle: values["clean:title"] || values.title || title,
       // @ts-ignore
-      subTitle: values['clean:subtitle'] || values.subtitle,
+      subTitle: values["clean:subtitle"] || values.subtitle,
       // @ts-ignore
-      section: values['clean:section'] || values.section,
+      section: values["clean:section"] || values.section,
       // @ts-ignore
-      desc: values['og:description'] || values.description
+      desc: values["og:description"] || values.description
     }
   }
 }
@@ -72,30 +72,28 @@ export default defineEventHandler(async (event: H3Event) => {
 
   if (query?.path) {
     const path = query.path.toString()
-    const host = event.node.req.headers.host || '127.0.0.1:3000'
+    const host = event.node.req.headers.host || "127.0.0.1:3000"
     const url = `http://${host}`
     const source = `${url}${path}`
 
-    let pfn: string = path.replaceAll('/', '__')
+    let pfn: string = path.replaceAll("/", "__")
     pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
     let jpg
     if (!existsSync(pfn) || process.dev) {
       const width = 1200
       const height = 628
-      const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: '#000000' })
+      const canvas = new fabric.StaticCanvas(null, {width, height, backgroundColor: "#000000"})
 
       const response = await fetch(source)
         .then(DSIGenerator.getMetaData)
         .catch(err => console.error(err))
 
-      const {
-        cleanTitle,
-        subTitle,
-        section,
-        title,
-        desc,
-        images
-      } = response
+      const cleanTitle = response.cleanTitle || ''
+      const subTitle = response.subTitle || ''
+      const section = response.section || ''
+      const title = response.title || ''
+      const desc = response.desc || ''
+      const images = response.images || []
       const textDefaults = DSIGenerator.textDefaults
       await imageRenderer(
         fabric,
@@ -119,7 +117,7 @@ export default defineEventHandler(async (event: H3Event) => {
     } else {
       jpg = readFileSync(pfn)
     }
-    appendHeader(event, 'Content-Type', 'image/jpeg')
+    appendHeader(event, "Content-Type", "image/jpeg")
     return jpg
   }
 })
@@ -143,24 +141,24 @@ const defaultImageRenderer = async (
 ) => {
   textDefaults = {
     styles: {},
-    fontFamily: 'arial',
-    fill: '#ffffff',
+    fontFamily: "arial",
+    fill: "#ffffff",
     fontSize: 12,
     left: 50,
     top: 50,
     lineHeight: 0.8,
-    textAlign: 'left',
+    textAlign: "left",
     lockRotation: true
   }
 
   if (images?.length > 0) {
     let imgPath = images[0]
     if (imgPath) {
-      if (imgPath.startsWith('/_ipx')) {
-        imgPath = imgPath.split('/').splice(3).join('/')
+      if (imgPath.startsWith("/_ipx")) {
+        imgPath = imgPath.split("/").splice(3).join("/")
       }
 
-      imgPath = createResolver('public').resolve(imgPath)
+      imgPath = createResolver("public").resolve(imgPath)
       const img: fabric.Image = await new Promise((resolve, reject) => {
         fabric.Image.fromURL(`file://${imgPath}`,
           (img: fabric.Image) => {
@@ -168,7 +166,7 @@ const defaultImageRenderer = async (
               img.scaleToHeight(height)
               img.scaleToWidth(width)
               // @ts-ignore
-              img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
+              img.filters.push(new fabric.Image.filters.Blur({blur: 0.33}))
               img.applyFilters()
             }
             resolve(img)
@@ -185,20 +183,20 @@ const defaultImageRenderer = async (
 
   let textTop = 30
   const bioText = new fabric.Textbox(
-    options.fixedText || '', defu({
+    options.fixedText || "", defu({
       top: textTop,
       width: width - 100,
-      fill: '#fffffffb',
+      fill: "#fffffffb",
       fontSize: 32,
-      fontWeight: '100'
+      fontWeight: "100"
     }, textDefaults))
 
   textTop += 90
 
   const bgBoxTop = new fabric.Rect({
     width: 1200,
-    height: (bioText.height || 0) + 60,
-    fill: '#00000050',
+    height: ( bioText.height || 0 ) + 60,
+    fill: "#00000050",
     left: 0,
     top: 0
 
@@ -210,7 +208,7 @@ const defaultImageRenderer = async (
     const sectTitle = new fabric.Textbox(
       `${section}`, defu({
         width: width - 300,
-        fill: '#ffffff90',
+        fill: "#ffffff90",
         fontSize: 28,
         left: 50,
         lineHeight: 1.2,
@@ -218,14 +216,14 @@ const defaultImageRenderer = async (
       }, textDefaults))
 
     canvas.add(sectTitle)
-    textTop += (sectTitle.height || 0)
+    textTop += ( sectTitle.height || 0 )
   }
 
   const titleTextBG = new fabric.Textbox(
     `${cleanTitle}`, defu({
       width: width - 100,
-      fontWeight: 'normal',
-      fill: '#ffffff10',
+      fontWeight: "normal",
+      fill: "#ffffff10",
       fontSize: 408,
       charSpacing: -40,
       lineHeight: 0.7,
@@ -240,13 +238,13 @@ const defaultImageRenderer = async (
       `${cleanTitle}`, defu({
         top: textTop,
         width: width - 100,
-        fill: '#fffffff0',
+        fill: "#fffffff0",
         fontSize: 80,
         left: 50,
-        fontWeight: 'bold'
+        fontWeight: "bold"
       }, textDefaults))
     canvas.add(titleText)
-    textTop += (titleText.height || 0)
+    textTop += ( titleText.height || 0 )
   }
 
   if (subTitle) {
@@ -254,13 +252,13 @@ const defaultImageRenderer = async (
       `${subTitle}`, defu({
         top: textTop,
         width: width - 100,
-        fill: '#fffffff0',
+        fill: "#fffffff0",
         fontSize: 25,
         left: 50
       }, textDefaults))
 
     canvas.add(subTitleText)
-    textTop += 80 + (subTitleText.height || 0)
+    textTop += 80 + ( subTitleText.height || 0 )
   } else {
     textTop += 80 + 20
   }
@@ -269,7 +267,7 @@ const defaultImageRenderer = async (
     const bgBox = new fabric.Rect({
       width: 1200,
       height: height - textTop + 120,
-      fill: '#00000050',
+      fill: "#00000050",
       left: 0,
       top: textTop - 50
     })
@@ -279,7 +277,7 @@ const defaultImageRenderer = async (
     const descText = new fabric.Textbox(
       `${desc}`, defu({
         width: width - 300,
-        fill: '#ffffffaa',
+        fill: "#ffffffaa",
         fontSize: 32,
         left: 50,
         lineHeight: 1.2,
@@ -291,7 +289,7 @@ const defaultImageRenderer = async (
 
 if (config.public.dsi?.customHandler) {
   const rendererPath = config.public.dsi.customHandler
-  const ch = await import(createResolver('.').resolve(rendererPath))
+  const ch = await import(createResolver(".").resolve(rendererPath))
   imageRenderer = ch.default
 } else {
   imageRenderer = defaultImageRenderer
