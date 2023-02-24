@@ -46,6 +46,7 @@ export default defineNuxtModule<ModuleOptions>({
 
     const handler: NitroEventHandler = {
       route: options.path,
+      method: 'get',
       handler: handlerPath
     }
     addPlugin({
