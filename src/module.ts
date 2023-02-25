@@ -8,7 +8,7 @@ export interface ModuleOptions {
    * Endpoint URL for generating image(s)
    * @default /socialImage
    */
-  path?: string,
+  path?: string
   /**
    * Directory where cached images will be stored
    * @default
@@ -16,15 +16,14 @@ export interface ModuleOptions {
    *       return `${__dirname}/cache`
    *  }
    */
-  cacheDir: string,
-  fonts?: Array<{ path: string, options: {} }>,
-  fixedText?: string,
+  cacheDir: string
+  fonts?: Array<{ path: string, options: {} }>
+  fixedText?: string
 
   /**
-   * Path to custom image generation handler/function for importing
-   * @example 'src/dsi-handler'
+   * Custom image generation handler function
    */
-  customHandler?: string,
+  customHandler?: Function
 }
 
 export default defineNuxtModule<ModuleOptions>({

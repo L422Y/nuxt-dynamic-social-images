@@ -23,6 +23,8 @@ modules: ['nuxt-dsi'],
 
 Add the module to your `nuxt.config.ts` and add optional configuration:
 ```js
+import {DSIHandler} from '~playground/src/dsi-handler.get.ts'
+
 export default defineNuxtConfig({
   modules: [
     'nuxt-dsi'
@@ -33,7 +35,7 @@ export default defineNuxtConfig({
     // static text placed at the top of the image
     fixedText: 'Nuxt: Dynamic Social Images',
     // set your custom render handler/function
-    customHandler: 'playground/src/dsi-handler.mjs',
+    customHandler: DSIHandler,
     // set up your custom fonts
     fonts: [
       { path: 'playground/fonts/ConnectionIi-2wj8.otf', 
@@ -71,7 +73,7 @@ See fabric's [registerFont](http://fabricjs.com/fabric-intro-part-4#custom-fonts
 
 
 ## Extending / Customization
-You can check out the [playground/src/dsi-handler.mjs](./playground/src/dsi-handler.mjs) for an example on how to add your own render function that overrides the default, giving you complete control over what your cards look like!
+You can check out the [playground/src/dsi-handler.get.ts](./playground/src/dsi-handler.get.ts) for an example on how to add your own render function that overrides the default, giving you complete control over what your cards look like!
 
 If you want to use 'clean' versions of strings (i.e. a barebones title like "Homepage" instead of "MySite: Homepage"), you can specify the meta tag as such:
 ```js

@@ -1,19 +1,19 @@
-import defu from "defu";
-import {createResolver} from "@nuxt/kit";
+import defu from 'defu'
+import { createResolver } from '@nuxt/kit'
 
-export default async (
-  fabric,
-  options,
-  canvas,
-  width,
-  height,
-  textDefaults,
-  cleanTitle,
-  subTitle,
-  section,
-  title,
-  desc,
-  images
+export const DSIHandler = async (
+  fabric: any,
+  options: any,
+  canvas: any,
+  width: number,
+  height: number,
+  textDefaults: any,
+  cleanTitle: boolean,
+  subTitle: boolean,
+  section: boolean,
+  title: string,
+  desc: boolean,
+  images: string[]
 ) => {
   textDefaults = {
     styles: {},
@@ -33,15 +33,15 @@ export default async (
       if (imgPath.startsWith('/_ipx')) {
         imgPath = imgPath.split('/').splice(3).join('/')
       }
-      // eslint-disable-next-line n/no-path-concat
+
       imgPath = createResolver('public').resolve(imgPath)
       const img = await new Promise((resolve, reject) => {
         fabric.Image.fromURL(`file://${imgPath}`,
-          (img) => {
+          (img: any) => {
             img.scaleToHeight(height)
             img.scaleToWidth(width)
             // @ts-ignore
-            img.filters.push(new fabric.Image.filters.Blur({blur: 0.33}))
+            img.filters.push(new fabric.Image.filters.Blur({ blur: 0.33 }))
             img.applyFilters()
             resolve(img)
           }, {
@@ -93,9 +93,7 @@ export default async (
     textTop += (sectTitle.height || 0)
   }
 
-
   if (cleanTitle) {
-
     const titleTextBG = new fabric.Textbox(
       `${cleanTitle}`, defu({
         width: width - 100,
@@ -106,7 +104,7 @@ export default async (
         charSpacing: -40,
         lineHeight: 0.7,
         left: 0,
-        top: -30,
+        top: -30
       }, textDefaults))
 
     canvas.add(titleTextBG)
@@ -119,7 +117,7 @@ export default async (
         fontSize: 80,
         left: 50,
         fontWeight: 'normal',
-        fontFamily: 'Times New Roman',
+        fontFamily: 'Times New Roman'
       }, textDefaults))
     canvas.add(titleText)
     textTop += (titleText.height || 0)
@@ -165,4 +163,3 @@ export default async (
     canvas.add(descText)
   }
 }
-
