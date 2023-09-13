@@ -1,13 +1,10 @@
 
-import { ModuleOptions, ModuleHooks, ModuleRuntimeConfig, ModulePublicRuntimeConfig } from './module'
+import { ModuleOptions } from './module'
 
 declare module '@nuxt/schema' {
   interface NuxtConfig { ['dsi']?: Partial<ModuleOptions> }
   interface NuxtOptions { ['dsi']?: ModuleOptions }
-  interface NuxtHooks extends ModuleHooks {}
-  interface RuntimeConfig extends ModuleRuntimeConfig {}
-  interface PublicRuntimeConfig extends ModulePublicRuntimeConfig {}
 }
 
 
-export { default } from './module'
+export { ModuleOptions, default } from './module'
