@@ -23,15 +23,12 @@ interface ModuleOptions {
      *  }
      */
     cacheDir: string;
-    fonts?: Array<{
-        path: string;
-        options: {};
-    }>;
+    fonts?: Array<any>;
     fixedText?: string;
     /**
-     * Custom image generation handler function
+     * Path to importable custom handler function
      */
-    customHandler?: Function;
+    customHandler?: string;
 }
 declare const _default: _nuxt_schema.NuxtModule<ModuleOptions>;
 

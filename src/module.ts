@@ -1,9 +1,18 @@
 import { fileURLToPath } from 'url'
 import { addPlugin, addServerHandler, createResolver, defineNuxtModule } from '@nuxt/kit'
-import { NitroEventHandler } from 'nitropack'
+import type { NitroEventHandler } from 'nitropack'
 import defu from 'defu'
 
 export interface ModuleOptions {
+
+  /**
+   * @default built from request headers
+   * @description The base URL of the site, no trailing slash!
+   * @example http://localhost:3000
+   * @example https://example.com
+   * @example https://example.com/subdir
+   */
+    baseUrl?: string,
   /**
    * Endpoint URL for generating image(s)
    * @default /socialImage
@@ -17,13 +26,13 @@ export interface ModuleOptions {
    *  }
    */
   cacheDir: string
-  fonts?: Array<{ path: string, options: {} }>
+  fonts?: Array<any>
   fixedText?: string
 
   /**
-   * Custom image generation handler function
+   * Path to importable custom handler function
    */
-  customHandler?: Function
+  customHandler?: string
 }
 
 export default defineNuxtModule<ModuleOptions>({

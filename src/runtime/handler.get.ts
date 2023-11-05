@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import { createWriteStream, existsSync, mkdir, readFileSync } from 'fs'
 import { appendHeader, defineEventHandler, getQuery, H3Event } from 'h3'
-import { fabric } from 'fabric'
+import * as fabric from 'fabric/node'
 import defu from 'defu'
 import { createResolver } from '@nuxt/kit'
 import { ModuleOptions } from '../module'
@@ -73,7 +73,7 @@ export default defineEventHandler(async (event: H3Event) => {
   if (query?.path) {
     const path = query.path.toString()
     const host = event.node.req.headers.host || '127.0.0.1:3000'
-    const url = `http://${host}`
+    const url = config.dsi.baseUrl || `http://${host}`
     const source = `${url}${path}`
 
     let pfn: string = path.replaceAll('/', '__')
@@ -82,7 +82,7 @@ export default defineEventHandler(async (event: H3Event) => {
     if (!existsSync(pfn) || process.dev) {
       const width = 1200
       const height = 628
-      const canvas = new fabric.StaticCanvas(null, { width, height, backgroundColor: '#000000' })
+      const canvas = new fabric.StaticCanvas(undefined, { width, height, backgroundColor: '#000000' })
 
       const response = await fetch(source)
         .then(DSIGenerator.getMetaData)
@@ -125,8 +125,8 @@ export default defineEventHandler(async (event: H3Event) => {
 const defaultImageRenderer = async (
   fabric: any,
   options: {
-    fixedText: string;
-  },
+        fixedText: string;
+    },
   canvas: fabric.StaticCanvas,
   width: number,
   height: number,
@@ -206,56 +206,56 @@ const defaultImageRenderer = async (
 
   if (section) {
     const sectTitle = new fabric.Textbox(
-      `${section}`, defu({
-        width: width - 300,
-        fill: '#ffffff90',
-        fontSize: 28,
-        left: 50,
-        lineHeight: 1.2,
-        top: textTop
-      }, textDefaults))
+            `${section}`, defu({
+              width: width - 300,
+              fill: '#ffffff90',
+              fontSize: 28,
+              left: 50,
+              lineHeight: 1.2,
+              top: textTop
+            }, textDefaults))
 
     canvas.add(sectTitle)
     textTop += (sectTitle.height || 0)
   }
 
   const titleTextBG = new fabric.Textbox(
-    `${cleanTitle}`, defu({
-      width: width - 100,
-      fontWeight: 'normal',
-      fill: '#ffffff10',
-      fontSize: 408,
-      charSpacing: -40,
-      lineHeight: 0.7,
-      left: 0,
-      top: -30
-    }, textDefaults))
+        `${cleanTitle}`, defu({
+          width: width - 100,
+          fontWeight: 'normal',
+          fill: '#ffffff10',
+          fontSize: 408,
+          charSpacing: -40,
+          lineHeight: 0.7,
+          left: 0,
+          top: -30
+        }, textDefaults))
 
   canvas.add(titleTextBG)
 
   if (cleanTitle) {
     const titleText = new fabric.Textbox(
-      `${cleanTitle}`, defu({
-        top: textTop,
-        width: width - 100,
-        fill: '#fffffff0',
-        fontSize: 80,
-        left: 50,
-        fontWeight: 'bold'
-      }, textDefaults))
+            `${cleanTitle}`, defu({
+              top: textTop,
+              width: width - 100,
+              fill: '#fffffff0',
+              fontSize: 80,
+              left: 50,
+              fontWeight: 'bold'
+            }, textDefaults))
     canvas.add(titleText)
     textTop += (titleText.height || 0)
   }
 
   if (subTitle) {
     const subTitleText = new fabric.Textbox(
-      `${subTitle}`, defu({
-        top: textTop,
-        width: width - 100,
-        fill: '#fffffff0',
-        fontSize: 25,
-        left: 50
-      }, textDefaults))
+            `${subTitle}`, defu({
+              top: textTop,
+              width: width - 100,
+              fill: '#fffffff0',
+              fontSize: 25,
+              left: 50
+            }, textDefaults))
 
     canvas.add(subTitleText)
     textTop += 80 + (subTitleText.height || 0)
@@ -275,20 +275,25 @@ const defaultImageRenderer = async (
     canvas.add(bgBox)
 
     const descText = new fabric.Textbox(
-      `${desc}`, defu({
-        width: width - 300,
-        fill: '#ffffffaa',
-        fontSize: 32,
-        left: 50,
-        lineHeight: 1.2,
-        top: textTop
-      }, textDefaults))
+            `${desc}`, defu({
+              width: width - 300,
+              fill: '#ffffffaa',
+              fontSize: 32,
+              left: 50,
+              lineHeight: 1.2,
+              top: textTop
+            }, textDefaults))
     canvas.add(descText)
   }
 }
 
 if (config.public.dsi?.customHandler) {
-  imageRenderer = config.public.dsi.customHandler
+  const handler = await import(config.public.dsi.customHandler).then((handler) => {
+    imageRenderer = handler.default
+  }).catch((err) => {
+    console.error(err)
+    imageRenderer = defaultImageRenderer
+  })
 } else {
   imageRenderer = defaultImageRenderer
 }

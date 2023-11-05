@@ -1,7 +1,7 @@
 // @ts-ignore
 import path from 'path'
-import { defineNuxtPlugin, useRuntimeConfig, useState } from '#app'
-import { fabric } from 'fabric'
+import * as fabric from 'fabric/node'
+import { defineNuxtPlugin, useRuntimeConfig, useState } from '#imports'
 
 export default defineNuxtPlugin(() => {
   const options = useRuntimeConfig().public.dsi
