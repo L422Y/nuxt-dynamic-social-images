@@ -73,7 +73,7 @@ export default defineEventHandler(async (event: H3Event) => {
   if (query?.path) {
     const path = query.path.toString()
     const host = event.node.req.headers.host || '127.0.0.1:3000'
-    const url = config.dsi.baseUrl || `http://${host}`
+    const url = config.public.dsi.customHandler || `http://${host}`
     const source = `${url}${path}`
 
     let pfn: string = path.replaceAll('/', '__')

@@ -11,6 +11,14 @@ const __dirname = __cjs_path__.dirname(__filename);
 const require = __cjs_mod__.createRequire(import.meta.url);
 interface ModuleOptions {
     /**
+     * @default built from request headers
+     * @description The base URL of the site, no trailing slash!
+     * @example http://localhost:3000
+     * @example https://example.com
+     * @example https://example.com/subdir
+     */
+    baseUrl?: string;
+    /**
      * Endpoint URL for generating image(s)
      * @default /socialImage
      */
