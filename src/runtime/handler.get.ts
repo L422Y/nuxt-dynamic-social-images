@@ -1,11 +1,12 @@
 import * as fs from "fs"
 import { createWriteStream, existsSync, mkdir, readFileSync } from "fs"
 import { appendHeader, defineEventHandler, getQuery, H3Event } from "h3"
-import * as fabric from "fabric-napi/node"
+import * as fabric from "fabric/node"
 import defu from "defu"
 import { createResolver } from "@nuxt/kit"
 import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
+import path from "path"
 
 const resolver = createResolver("~")
 
@@ -77,7 +78,6 @@ export default defineEventHandler(async (event: H3Event) => {
         const path = query.path.toString()
         const host = event.node.req.headers.host || "127.0.0.1:3000"
         const url = config.public.dsi.baseUrl || `http://${host}`
-        consola.log(`url: ${url}`)
         const source = `${url}${path}`
 
         let pfn: string = path.replaceAll("/", "__")
@@ -292,8 +292,16 @@ const defaultImageRenderer = async (
 }
 
 if (config.public.dsi?.customHandler) {
-    const handler = await import(config.public.dsi.customHandler).then((handler) => {
-        imageRenderer = handler.default
+    const handlerPath = path.resolve(config.public.dsi.customHandler)
+    consola.info(`[nuxt-dsi] loading custom handler from \`${handlerPath}\`...`)
+
+    const handler = await import(handlerPath).then((handler) => {
+        if (handler.default) {
+            imageRenderer = handler.default
+        } else {
+            consola.error(`[nuxt-dsi] No default export found in \`${handlerPath}\`!`)
+            imageRenderer = defaultImageRenderer
+        }
     }).catch((err) => {
         console.error(err)
         imageRenderer = defaultImageRenderer
