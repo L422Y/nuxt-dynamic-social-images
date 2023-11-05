@@ -1,6 +1,6 @@
 {
   "name": "nuxt-dsi",
-  "version": "0.7.9",
+  "version": "0.7.10",
   "license": "MIT",
   "type": "module",
   "keywords": [
@@ -31,7 +31,7 @@
   "dependencies": {
     "@nuxt/kit": "^3.0.0",
     "defu": "^6.1.1",
-    "fabric": "^6.0.0-beta15"
+    "fabric-napi": "^6.0.0-beta15"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.1",
