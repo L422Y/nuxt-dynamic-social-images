@@ -31,7 +31,8 @@
   "dependencies": {
     "@nuxt/kit": "^3.0.0",
     "defu": "^6.1.1",
-    "fabric": "^6.0.0-beta15"
+    "fabric": "^6.0.0-beta15",
+    "gm": "^1.25.0"
   },
   "devDependencies": {
     "@nuxt/module-builder": "^0.2.1",
