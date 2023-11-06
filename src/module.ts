@@ -120,12 +120,6 @@ export default defineNuxtModule<ModuleOptions>({
             method: "get",
             handler: handlerPath
         }
-        // addPlugin({
-        // src: resolver.resolve("runtime/plugin.server")
-        // })
-
-
-
 
 
         addServerHandler(handler)
