@@ -9,8 +9,13 @@ const module = defineNuxtModule({
   },
   defaults: {
     path: "/socialImage",
+    cache: true,
     cacheDir: "cache",
-    fixedText: "Fixed Header Copy Goes here"
+    backgrounds: {
+      default: "socialBg.png"
+    },
+    fixedText: "Fixed Header Copy Goes here",
+    usePageImages: true
   },
   setup: function(options, nuxt) {
     const resolver = createResolver(import.meta.url);

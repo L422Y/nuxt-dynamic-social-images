@@ -4,11 +4,12 @@ import { appendHeader, defineEventHandler, getQuery, H3Event } from "h3"
 import * as fabric from "fabric/node"
 import defu from "defu"
 import { createResolver } from "@nuxt/kit"
+// @ts-ignore
 import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
 import path from "path"
 
-const resolver = createResolver("~")
+const resolver = createResolver("cache")
 
 const config = useRuntimeConfig()
 const options = config.public.dsi
@@ -20,9 +21,10 @@ try {
     if (existsSync(cachePath)) {
         fs.rmSync(cachePath, {force: true, recursive: true})
     }
-    // eslint-disable-next-line n/handle-callback-err
-    mkdir(cachePath, {recursive: true}, (err) => { /* empty */
-    })
+    mkdir(cachePath,
+        {recursive: true},
+        (err) => { /* empty */
+        })
 } catch (err) {
     /* empty */
 }
@@ -49,9 +51,8 @@ class DSIGenerator {
         let title = html.matchAll(/<title>(.*)<\/title>/gm)?.next()?.value
         title = title[1] ? title[1] : false
 
-        const values: object = {}
+        const values: any = {}
         for (const m of matches) {
-            // @ts-ignore
             values[m[2].toString()] = m[3]
         }
         matches = html.matchAll(/<img src="([^"]+)"/gm)
@@ -59,13 +60,9 @@ class DSIGenerator {
         return {
             title,
             images,
-            // @ts-ignore
             cleanTitle: values["clean:title"] || values.title || title,
-            // @ts-ignore
             subTitle: values["clean:subtitle"] || values.subtitle,
-            // @ts-ignore
             section: values["clean:section"] || values.section,
-            // @ts-ignore
             desc: values["og:description"] || values.description
         }
     }
@@ -83,7 +80,7 @@ export default defineEventHandler(async (event: H3Event) => {
         let pfn: string = path.replaceAll("/", "__")
         pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
         let jpg
-        if (!existsSync(pfn) || process.dev) {
+        if (config.public.dsi?.cache !== true || !existsSync(pfn) || process.env.NODE_ENV !== "production") {
             const width = 1200
             const height = 628
             const canvas = new fabric.StaticCanvas(undefined, {width, height, backgroundColor: "#000000"})
@@ -92,11 +89,11 @@ export default defineEventHandler(async (event: H3Event) => {
                 .then(DSIGenerator.getMetaData)
                 .catch(err => console.error(err))
 
-            const cleanTitle = response.cleanTitle || ""
-            const subTitle = response.subTitle || ""
-            const section = response.section || ""
-            const title = response.title || ""
-            const desc = response.desc || ""
+            const cleanTitle: string = response.cleanTitle || ""
+            const subTitle: string = response.subTitle || ""
+            const section: string = response.section || ""
+            const title: string = response.title || ""
+            const desc: string = response.desc || ""
             const images = response.images || []
             const textDefaults = DSIGenerator.textDefaults
             await imageRenderer(
@@ -135,14 +132,16 @@ const defaultImageRenderer = async (
     width: number,
     height: number,
     textDefaults: object,
-    cleanTitle: boolean,
-    subTitle: boolean,
-    section: boolean,
-    title: string,
-    desc: boolean,
+    cleanTitle: any,
+    subTitle: any,
+    section: any,
+    title: any,
+    desc: any,
     images: string[],
     url: string
 ) => {
+    const __dirname = path.resolve("")
+
     textDefaults = {
         styles: {},
         fontFamily: "arial",
@@ -155,7 +154,34 @@ const defaultImageRenderer = async (
         lockRotation: true
     }
 
-    if (images?.length > 0) {
+    if (config.public.dsi?.backgrounds) {
+        const backgrounds = config.public.dsi.backgrounds
+
+        let bgPath = backgrounds["default"]
+
+        if (section instanceof String && section.length > 0 && backgrounds.hasOwnProperty(section.toLowerCase())) {
+            bgPath = backgrounds[section.toLowerCase()]
+            if (Array.isArray(bgPath)) {
+                bgPath = bgPath[Math.floor(Math.random() * bgPath.length)]
+            }
+        }
+
+        const socialBg = path.resolve(`${__dirname}/public`, bgPath)
+        const img = await fabric.Image.fromURL(`file://${socialBg}`)
+            .then((img) => {
+                img.scaleToHeight(height)
+                img.scaleToWidth(width)
+                // img.filters.push(new fabric.filters.Blur({blur: 0}))
+                // img.applyFilters()
+                canvas.add(img)
+                canvas.centerObject(img)
+                return img
+            }).catch((err) => {
+                consola.error(err)
+            })
+    }
+
+    if (config.public.dsi?.usePageImages && images?.length > 0) {
         let imgPath = images[0]
         if (imgPath) {
             if (imgPath.startsWith("/_ipx")) {
@@ -293,8 +319,6 @@ const defaultImageRenderer = async (
 
 if (config.public.dsi?.customHandler) {
     const handlerPath = path.resolve(config.public.dsi.customHandler)
-    consola.info(`[nuxt-dsi] loading custom handler from \`${handlerPath}\`...`)
-
     const handler = await import(handlerPath).then((handler) => {
         if (handler.default) {
             imageRenderer = handler.default

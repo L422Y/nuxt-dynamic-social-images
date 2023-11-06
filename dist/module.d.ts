@@ -24,6 +24,11 @@ interface ModuleOptions {
      */
     path?: string;
     /**
+     * @default true
+     * @description Whether to cache generated images
+     */
+    cache?: boolean;
+    /**
      * Directory where cached images will be stored
      * @default
      * () => {
@@ -31,10 +36,54 @@ interface ModuleOptions {
      *  }
      */
     cacheDir: string;
+    /**
+     * @default []
+     * @description Array of fonts to load
+     * @example
+     * [
+     *     {
+     *       path: "src/fonts/Roboto/Roboto-Thin.ttf",
+     *       options: {
+     *          family: "robotothin"
+     *       },
+     *     },
+     *     {
+     *       path: "src/fonts/Roboto/Roboto-Regular.ttf",
+     *       options: {
+     *          family: "robotoregular"
+     *       }
+     *     }
+     * ]
+     */
     fonts?: Array<any>;
+    /**
+     * @default "Fixed header text goes here"
+     */
     fixedText?: string;
     /**
+     * @default {}
+     * @description Background images to use for each section, or "default" for all sections, can be an array of images to randomly select from
+     * @example
+     * {
+     *    "default": "socialBg.png",
+     *    "about": "socialBgAbout.png",
+     *    "experience": "socialBgExperience.png",
+     *    "projects": "socialBgProjects.png",
+     *    "references": "socialBgReferences.png",
+     *    "skills": ["socialBgSkills.png", "socialBgSkills2.png", "socialBgSkills3.png"],
+     * }
+     */
+    backgrounds?: {};
+    /**
+     * @default true
+     * @description Whether to try and use images from the page to enhance the OpenGraph image
+     */
+    usePageImages?: boolean;
+    /**
      * Path to importable custom handler function
+     * @default undefined
+     *
+     * @example "src/socialImage.handler.mjs"
      */
     customHandler?: string;
 }
