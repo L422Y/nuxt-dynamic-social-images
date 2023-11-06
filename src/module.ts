@@ -2,6 +2,8 @@ import { fileURLToPath } from "url"
 import { addPlugin, addServerHandler, createResolver, defineNuxtModule } from "@nuxt/kit"
 import type { NitroEventHandler } from "nitropack"
 import defu from "defu"
+import * as fabricLib  from "fabric/node"
+import path from "path"
 
 export interface ModuleOptions {
 
@@ -119,9 +121,14 @@ export default defineNuxtModule<ModuleOptions>({
             method: "get",
             handler: handlerPath
         }
-        addPlugin({
-            src: resolver.resolve("runtime/plugin.server")
-        })
+        // addPlugin({
+        // src: resolver.resolve("runtime/plugin.server")
+        // })
+
+
+
+
+
         addServerHandler(handler)
     }
 })

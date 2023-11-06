@@ -1,5 +1,5 @@
 import { fileURLToPath } from 'url';
-import { defineNuxtModule, createResolver, addPlugin, addServerHandler } from '@nuxt/kit';
+import { defineNuxtModule, createResolver, addServerHandler } from '@nuxt/kit';
 import defu from 'defu';
 
 const module = defineNuxtModule({
@@ -28,9 +28,6 @@ const module = defineNuxtModule({
       method: "get",
       handler: handlerPath
     };
-    addPlugin({
-      src: resolver.resolve("runtime/plugin.server")
-    });
     addServerHandler(handler);
   }
 });

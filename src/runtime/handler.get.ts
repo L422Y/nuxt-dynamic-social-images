@@ -29,6 +29,8 @@ try {
     /* empty */
 }
 
+
+
 class DSIGenerator {
     static textDefaults = {
         styles: {},
@@ -68,7 +70,33 @@ class DSIGenerator {
     }
 }
 
+
+
 export default defineEventHandler(async (event: H3Event) => {
+
+    // console.log(`[nuxt-dsi] Using options: ${JSON.stringify(options)}`)
+    // if (process.env.fontsLoaded !== "true") {
+    //
+    //     console.log(`[nuxt-dsi] Loading fonts`)
+    //     // @ts-ignore
+    //     if (options?.fonts && fabric.Canvas.registerFont) {
+    //         console.log(`[nuxt-dsi] Registering fonts`)
+    //
+    //         for (const font of options?.fonts) {
+    //             try {
+    //                 const fPath = path.resolve("", font.path)
+    //                 console.log(`[nuxt-dsi] Registering font: ${fPath}`)
+    //                 // @ts-ignore
+    //                 fabric.Canvas.registerFont(fPath, font.options)
+    //             } catch (e) {
+    //                 console.error(e)
+    //             }
+    //         }
+    //     } else {
+    //         console.log(`[nuxt-dsi] No fonts to register`)
+    //     }
+    //     process.env.fontsLoaded = "true"
+    // }
     const query = getQuery(event)
 
     if (query?.path) {
@@ -122,6 +150,7 @@ export default defineEventHandler(async (event: H3Event) => {
         return jpg
     }
 })
+
 
 const defaultImageRenderer = async (
     fabric: any,
