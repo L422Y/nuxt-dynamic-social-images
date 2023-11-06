@@ -164,6 +164,8 @@ const defaultImageRenderer = async (
             if (Array.isArray(bgPath)) {
                 bgPath = bgPath[Math.floor(Math.random() * bgPath.length)]
             }
+        } else if (Array.isArray(bgPath)) {
+            bgPath = bgPath[Math.floor(Math.random() * bgPath.length)]
         }
 
         const socialBg = path.resolve(`${__dirname}/public`, bgPath)
