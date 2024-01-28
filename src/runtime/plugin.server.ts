@@ -3,9 +3,6 @@ import path from "path"
 import { defineNuxtPlugin, useRuntimeConfig, useState } from "#imports"
 import * as fabric from "fabric/node"
 
-
-
-
 export default defineNuxtPlugin(() => {
     // try {
     //     const options = useRuntimeConfig().public.dsi
