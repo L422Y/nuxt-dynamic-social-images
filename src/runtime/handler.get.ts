@@ -5,6 +5,7 @@ import gm from "gm"
 import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
 import path from "path"
+import { mkdir } from "unenv/runtime/node/fs"
 
 const resolver = createResolver("cache")
 
