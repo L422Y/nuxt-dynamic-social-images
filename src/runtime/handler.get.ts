@@ -1,11 +1,9 @@
-import * as fs from "fs"
-import { existsSync, readFileSync } from "fs"
+import { existsSync, mkdir, rmSync, readFileSync } from "fs"
 import { appendHeader, defineEventHandler, getQuery, H3Event } from "h3"
 import gm from "gm"
 import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
 import path from "path"
-import { mkdir } from "unenv/runtime/node/fs"
 
 const resolver = createResolver("cache")
 
@@ -17,7 +15,7 @@ let imageRenderer: any | Function | undefined
 const cachePath = resolver.resolve(`${options.cacheDir}`)
 try {
     if (existsSync(cachePath)) {
-        fs.rmSync(cachePath, {force: true, recursive: true})
+        rmSync(cachePath, {force: true, recursive: true})
     }
     mkdir(cachePath,
         {recursive: true},
