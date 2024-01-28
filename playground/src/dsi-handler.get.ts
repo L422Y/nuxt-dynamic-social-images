@@ -151,7 +151,7 @@ export const DSIHandler = async (
     canvas.add(bgBox)
 
     const descText = new fabric.Textbox(
-      `${desc}`, defu({
+      `${unescape(desc)}`, defu({
         width: width - 300,
         fill: '#ffffffaa',
         fontSize: 32,
