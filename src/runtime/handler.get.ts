@@ -5,14 +5,12 @@ import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
 import path from "path"
 
-const resolver = createResolver("cache")
-
 const config = useRuntimeConfig()
 const options = config.public.dsi
 
 let imageRenderer: any | Function | undefined
 
-const cachePath = resolver.resolve(`${options.cacheDir}`)
+const cachePath = path.resolve(`${options.cacheDir}`)
 try {
     if (existsSync(cachePath)) {
         rmSync(cachePath, {force: true, recursive: true})
