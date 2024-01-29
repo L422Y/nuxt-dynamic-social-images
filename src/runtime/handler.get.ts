@@ -3,14 +3,14 @@ import { appendHeader, defineEventHandler, getQuery, H3Event } from "h3"
 import gm from "gm"
 import { useRuntimeConfig } from "#imports"
 import consola from "unenv/runtime/npm/consola"
-import path from "path"
+import {resolve} from "path"
 
 const config = useRuntimeConfig()
 const options = config.public.dsi
 
 let imageRenderer: any | Function | undefined
 
-const cachePath = path.resolve(`${options.cacheDir}`)
+const cachePath = resolve(`${options.cacheDir}`)
 try {
     if (existsSync(cachePath)) {
         rmSync(cachePath, {force: true, recursive: true})
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event: H3Event) => {
         const source = `${url}${path}`
 
         let pfn: string = path.replaceAll("/", "__")
-        pfn = resolver.resolve(cachePath, `${pfn}.jpg`)
+        pfn = resolve(cachePath, `${pfn}.jpg`)
         let jpg
         if (config.public.dsi?.cache !== true || !existsSync(pfn) || process.env.NODE_ENV !== "production") {
             const response = await fetch(source)
@@ -126,7 +126,7 @@ interface renderedArgs {
     url: string
 }
 
-const __dirname = path.resolve("")
+const __dirname = resolve("./")
 
 const defaultImageRenderer = async (args: Partial<renderedArgs>) => {
     const {gm, options, textDefaults, cleanTitle, subTitle, section, title, desc, images} = args
@@ -142,7 +142,7 @@ const defaultImageRenderer = async (args: Partial<renderedArgs>) => {
 
             let bgPath = backgrounds["default"]
 
-            if (section instanceof String && section.length > 0 && backgrounds.hasOwnProperty(section.toLowerCase())) {
+            if (section?.length > 0 && backgrounds.hasOwnProperty(section.toLowerCase())) {
                 bgPath = backgrounds[section.toLowerCase()]
                 if (Array.isArray(bgPath)) {
                     bgPath = bgPath[Math.floor(Math.random() * bgPath.length)]
@@ -151,7 +151,7 @@ const defaultImageRenderer = async (args: Partial<renderedArgs>) => {
                 bgPath = bgPath[Math.floor(Math.random() * bgPath.length)]
             }
 
-            backgroundImage = path.resolve(`${__dirname}/public`, bgPath)
+            backgroundImage = resolve(`${__dirname}/public`, bgPath)
         }
 
 
@@ -256,7 +256,7 @@ function wrapText(text, maxLineWidth, fontSize = 80) {
 
 
 if (options?.customHandler) {
-    const handlerPath = path.resolve("", options.customHandler)
+    const handlerPath = resolve("", options.customHandler)
     console.log(`[nuxt-dsi] Loading custom handler from \`${handlerPath}\``)
     const handler = await import(handlerPath).then((handler) => {
         if (handler.default) {
